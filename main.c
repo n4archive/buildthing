@@ -48,14 +48,10 @@ splitstr* split(char* string, char* delimiter) {
 		strncpy(newstr, oldpos, newsize);
 		newstr[newsize] = '\0';
 		oldpos = pos + dlen;
-		//printf("Found %s\n", newstr);
 		ret->str = realloc(ret->str, (targetsize+1) * sizeof(char*));
 		ret->str[targetsize++] = newstr;
 		ret->len++;
 	} while (pos != NULL);
-	for (int i = 0; i < ret->len; i++) {
-		printf("Element %d: %s\n", i, ret->str[i]);
-	}
 	return ret;
 }
 
@@ -65,7 +61,9 @@ int main(int argc, char** argv) {
 	char* contents = readfullfile(argv[1]);
 	if (contents == NULL)
 		return 2;
-	printf("%s", contents);
-	split(contents, "a");
+	splitstr* ret = split(contents, "\n");
+	for (int i = 0; i < ret->len; i++) {
+		printf("Element %d: %s\n", i, ret->str[i]);
+	}
 	return 0;
 }
