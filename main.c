@@ -32,6 +32,7 @@ splitstr* split(char* string, char* delimiter) {
 	if (ret == NULL)
 		return NULL;
 	ret->str = NULL;
+	ret->len = 0;
 	char* pos;
 	char* oldpos = string;
 	int newsize;
@@ -47,13 +48,13 @@ splitstr* split(char* string, char* delimiter) {
 		strncpy(newstr, oldpos, newsize);
 		newstr[newsize] = '\0';
 		oldpos = pos + dlen;
-		printf("Found %s\n", newstr);
+		//printf("Found %s\n", newstr);
 		ret->str = realloc(ret->str, (targetsize+1) * sizeof(char*));
 		ret->str[targetsize++] = newstr;
-		//ret->len++;
+		ret->len++;
 	} while (pos != NULL);
 	for (int i = 0; i < ret->len; i++) {
-		printf("Element %d: %s", i, ret->str[i]);
+		printf("Element %d: %s\n", i, ret->str[i]);
 	}
 	return ret;
 }
