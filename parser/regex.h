@@ -1,6 +1,8 @@
 #ifndef REGEX_H
 #define REGEX_H
-#define MAKE_CHAR_FUNC_H(name) int name(char c);
+char* char2string(char c);
+
+#define MAKE_CHAR_FUNC_H(name) bool name(char c);
 
 MAKE_CHAR_FUNC_H(is_id_start)
 MAKE_CHAR_FUNC_H(is_id)

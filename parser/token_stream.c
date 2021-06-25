@@ -7,6 +7,7 @@
 token_stream* new_tk_stream(input_stream* input) {
 	token_stream* s = malloc(sizeof(token_stream));
 	s->instr = input;
+	s->current = NULL;
 	s->failed = false;
 	s->eof = false;
 	return s;
@@ -62,6 +63,35 @@ char* _tkstr_read_while(token_stream* s, bool (*predicate) (char)) {
 	return final;
 }
 
+//todo parse special escapes like \n
+char* _tkstr_read_escaped(token_stream* s, char end) {
+	int size = 1000;
+	int free = size;
+	bool escaped = false;
+	char* final = malloc(sizeof(char) * size);
+	char c = '\0';
+	while (!s->eof && !s->failed) {
+		c = instr_next(s->instr);
+		sync_tkstr_fail(s);
+		if (escaped) {
+			final[size - (free--)] = c;
+			escaped = false;
+		} else if (c == '\\') {
+			escaped = true;
+		} else if (c == end) {
+			break;
+		} else {
+			final[size - (free--)] = c;
+		}
+		if (free < 1) {
+			size += 100;
+			final = realloc(final, size * sizeof(char));
+		}
+	}
+	final[size - free] = '\0';
+	return final;
+}
+
 token* _tkstr_read_number(token_stream* s) {
 	bool has_dot = false;
 	bool predread(char c) {
@@ -75,12 +105,75 @@ token* _tkstr_read_number(token_stream* s) {
 	char* number = _tkstr_read_while(s, predread);
 	token* t = malloc(sizeof(token));
 	t->raw = number;
+	t->type = NUMBER;
 	return t;
 }
 
+bool is_keyword(char* s) {
+#define k(w) if (strcmp(s, w) == 0) return true;
+	k("if")
+#undef k
+	return false;
+}
+
+token* _tkstr_read_ident(token_stream* s) {
+	char* id = _tkstr_read_while(s, is_id);
+	token* t = malloc(sizeof(token));
+	t->raw = id;
+	t->type = is_keyword(id) ? KEYWORD : VAR;
+	return t;
+}
+
+token* _tkstr_read_string(token_stream* s) {
+	token* t = malloc(sizeof(token));
+	instr_next(s->instr);
+	t->raw = _tkstr_read_escaped(s, '"');
+	t->type = STRING;
+	return t;
+}
+
+void _tkstr_skip_comment(token_stream* s) {
+	bool is_not_newline(char c) {
+		return c != '\n';
+	}
+	_tkstr_read_while(s, is_not_newline);
+	instr_next(s->instr);
+}
+
+
 token* _tkstr_read_next(token_stream* s) {
+	_tkstr_read_while(s, is_whitespace);
 	sync_tkstr_fail(s);
 	if (s->eof)
 		return NULL;
-	return NULL; //TODO
+	char c = instr_peek(s->instr);
+	if (c == '\0') {
+		instr_next(s->instr);
+		sync_tkstr_fail(s);
+		return NULL;
+	} else if (c == '#') {
+		_tkstr_skip_comment(s);
+		return _tkstr_read_next(s);
+	} else if (c == '"')
+		return _tkstr_read_string(s);
+	else if (is_digit(c))
+		return _tkstr_read_number(s);
+	else if (is_id_start(c))
+		return _tkstr_read_ident(s);
+	else if (is_punc(c)) {
+		token* t = malloc(sizeof(token));
+		t->raw = char2string(instr_next(s->instr));
+		t->type = PUNC;
+		return t;
+	} else if (is_op_char(c)) {
+		token* t = malloc(sizeof(token));
+		t->raw = _tkstr_read_while(s, is_op_char);
+		t->type = OP;
+		return t;
+	} else {
+		char err[35] = {' '};
+		sprintf(err, "Can't handle char (%d)", (int)c);
+		tkstr_fail(s, err);
+		return NULL;
+	}		
 }
