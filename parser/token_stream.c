@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "token_stream.h"
+#include "regex.h"
 
 token_stream* new_tk_stream(input_stream* input) {
 	token_stream* s = malloc(sizeof(token_stream));
@@ -52,7 +53,6 @@ char* _tkstr_read_while(token_stream* s, bool (*predicate) (char)) {
 	while (!s->eof && !s->failed && predicate(instr_peek(s->instr))) {
 		sync_tkstr_fail(s);
 		final[size - (free--)] = instr_next(s->instr);
-		printf("%c", final[size - (free+1)]);
 		if (free < 1) {
 			size += 100;
 			final = realloc(final, size * sizeof(char));
@@ -63,7 +63,19 @@ char* _tkstr_read_while(token_stream* s, bool (*predicate) (char)) {
 }
 
 token* _tkstr_read_number(token_stream* s) {
-
+	bool has_dot = false;
+	bool predread(char c) {
+		if (c == '.') {
+			if (has_dot) return false;
+			has_dot = true;
+			return true;
+		}
+		return is_digit(c);
+	}
+	char* number = _tkstr_read_while(s, predread);
+	token* t = malloc(sizeof(token));
+	t->raw = number;
+	return t;
 }
 
 token* _tkstr_read_next(token_stream* s) {

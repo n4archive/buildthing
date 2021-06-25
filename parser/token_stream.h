@@ -8,6 +8,7 @@ typedef enum _token_type token_type;
 
 struct _token {
 	token_type type;
+	char* raw;
 };
 typedef struct _token token;
 
@@ -24,5 +25,7 @@ token* tkstr_next(token_stream* s);
 token* tkstr_peek(token_stream* s);
 void tkstr_fail(token_stream* s, char* fail);
 
+char* _tkstr_read_while(token_stream* s, bool (*predicate) (char));
 token* _tkstr_read_next(token_stream* s);
+token* _tkstr_read_number(token_stream* s);
 #endif
