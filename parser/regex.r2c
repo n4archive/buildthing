@@ -1,0 +1,13 @@
+int is_digit(const char *YYCURSOR)
+{
+    /*!re2c                         // start of re2c block
+    re2c:define:YYCTYPE = char;     // configuration
+    re2c:yyfill:enable = 0;         // configuration
+    re2c:flags:case-ranges = 1;     // configuration
+                                    //
+    ident = [0-9]*; // named definition
+                                    //
+    ident { return 1; }             // normal rule
+    *     { return 0; }             // default rule
+    */
+}

@@ -1,9 +1,12 @@
 OUT ?= out
 GCC ?= gcc
+R2C ?= re2c
 LDFLAGS ?=
 CFLAGS ?= -Wall -Wextra -g
 CPPFLAGS ?= -DBUILDTHING
-CSRCS ?= main.c
+R2CSRCS := parser/regex.r2c
+CSRCS := main.c file.c string.c parser/char_stream.c parser/token_stream.c
+CSRCS += $(addprefix $(OUT)/, $(R2CSRCS:.r2c=.c))
 COBJS = $(addprefix $(OUT)/, $(CSRCS:.c=.o))
 OBJS = $(COBJS)
 
@@ -12,8 +15,12 @@ DEFAULT: out/buildthing
 clean:
 	rm -rf $(OUT)
 
+$(OUT)/%.c: %.r2c
+	mkdir -p `dirname $@`
+	$(R2C) $< -o $@
+
 $(OUT)/%.o: %.c
-	mkdir -p $(OUT)
+	mkdir -p `dirname $@`
 	$(GCC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 $(OUT)/buildthing: $(OBJS)
