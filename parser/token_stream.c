@@ -58,7 +58,7 @@ char* _tkstr_read_while(token_stream* s, bool (*predicate) (char)) {
 			final = realloc(final, size * sizeof(char));
 		}
 	}
-	final[size - 1] = '\0';
+	final[size - free] = '\0';
 	return final;
 }
 
