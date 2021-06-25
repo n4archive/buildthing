@@ -45,6 +45,27 @@ void tkstr_fail(token_stream* s, char* fail) {
 	instr_fail(s->instr, fail);
 }
 
+char* _tkstr_read_while(token_stream* s, bool (*predicate) (char)) {
+	int size = 1000;
+	int free = size;
+	char* final = malloc(sizeof(char) * size);
+	while (!s->eof && !s->failed && predicate(instr_peek(s->instr))) {
+		sync_tkstr_fail(s);
+		final[size - (free--)] = instr_next(s->instr);
+		printf("%c", final[size - (free+1)]);
+		if (free < 1) {
+			size += 100;
+			final = realloc(final, size * sizeof(char));
+		}
+	}
+	final[size - 1] = '\0';
+	return final;
+}
+
+token* _tkstr_read_number(token_stream* s) {
+
+}
+
 token* _tkstr_read_next(token_stream* s) {
 	sync_tkstr_fail(s);
 	if (s->eof)

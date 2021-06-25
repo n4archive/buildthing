@@ -1,13 +1,92 @@
-int is_digit(const char *YYCURSOR)
-{
-    /*!re2c                         // start of re2c block
+#include <stdlib.h>
+
+// no need to touch this part
+/*!re2c                         // start of re2c block
     re2c:define:YYCTYPE = char;     // configuration
     re2c:yyfill:enable = 0;         // configuration
     re2c:flags:case-ranges = 1;     // configuration
+*/
+
+char* char2string(char c) {
+    char* str = malloc(sizeof(char) * 2);
+    str[1] = '\0';
+    str[0] = c;
+    return str;
+}
+
+#define MAKE_CHAR_FUNC(func) \
+	int func(char c) { \
+		return str_##func(char2string(c)); \
+	}
+
+// regex definitions
+
+int str_is_digit(const char *YYCURSOR)
+{
+    /*!re2c                         // start of re2c block
                                     //
-    ident = [0-9]*; // named definition
+    digitident = [0-9]; // named definition
                                     //
-    ident { return 1; }             // normal rule
+    digitident { return 1; }             // normal rule
     *     { return 0; }             // default rule
     */
 }
+
+int str_is_id_start(const char *YYCURSOR)
+{
+    /*!re2c                         // start of re2c block
+    idident = [a-z_]; // named definition
+                                    //
+    idident { return 1; }             // normal rule
+    *     { return 0; }             // default rule
+    */
+}
+
+int str_is_id(const char *YYCURSOR)
+{
+    /*!re2c                         // start of re2c block
+    id2ident = [a-zA-Z0-9?!<>=_-]; // named definition
+                                    //
+    id2ident { return 1; }             // normal rule
+    *     { return 0; }             // default rule
+    */
+}
+
+int str_is_op_char(const char *YYCURSOR)
+{
+    /*!re2c                         // start of re2c block
+    opident = [+*/%=&|<>!-]; // named definition
+                                    //
+    opident { return 1; }             // normal rule
+    *     { return 0; }             // default rule
+    */
+}
+
+int str_is_punc(const char *YYCURSOR)
+{
+    /*!re2c                         // start of re2c block
+    puncident = [\.;\(\)\[\]\{\}]; // named definition
+                                    //
+    puncident { return 1; }             // normal rule
+    *     { return 0; }             // default rule
+    */
+}
+
+int str_is_whitespace(const char *YYCURSOR)
+{
+    /*!re2c                         // start of re2c block
+    spaceident = [\t\n ]; // named definition
+                                    //
+    spaceident { return 1; }             // normal rule
+    *     { return 0; }             // default rule
+    */
+}
+
+
+
+MAKE_CHAR_FUNC(is_id_start)
+MAKE_CHAR_FUNC(is_id)
+MAKE_CHAR_FUNC(is_digit)
+MAKE_CHAR_FUNC(is_op_char)
+MAKE_CHAR_FUNC(is_punc)
+MAKE_CHAR_FUNC(is_whitespace)
