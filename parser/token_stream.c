@@ -72,21 +72,28 @@ char* _tkstr_read_escaped(token_stream* s, char end) {
 	while (!s->eof && !s->failed) {
 		c = instr_next(s->instr);
 		sync_tkstr_fail(s);
-		if (escaped && c == 'a') {
-			final[size - (free--)] = '\a';
-		} else if (escaped && c == 'b') {
-			final[size - (free--)] = '\b';
-		} else if (escaped && c == 'f') {
-			final[size - (free--)] = '\f';
-		} else if (escaped && c == 'n') {
-			final[size - (free--)] = '\n';
-		} else if (escaped && c == 'r') {
+		if(escaped && c == 'a') {
+            final[size - (free--)] = '\a';
+        }
+		if(escaped && c == 'b') {
+            final[size - (free--)] = '\b';
+        }
+		if(escaped && c == 'f') {
+            final[size - (free--)] = '\f';
+        }
+		if(escaped && c == 'n') {
+		    final[size - (free--)] = '\n';
+        }
+		if(escaped && c == 'r') {
 			final[size - (free--)] = '\r';
-		} else if (escaped && c == 't') {
-			final[size - (free--)] = '\t';
-		} else if (escaped && c == 'v') {
-			final[size - (free--)] = '\v';
-		} else if (escaped) {
+        }
+		if(escaped && c == 't') {
+            final[size - (free--)] = '\t';
+        }
+        if(escaped && c == 'v') {
+            final[size - (free--)] = '\v';
+        }
+		if (escaped) {
 			final[size - (free--)] = c;
 			escaped = false;
 		} else if (c == '\\') {
@@ -126,9 +133,12 @@ token* _tkstr_read_number(token_stream* s) {
 		}
 		return is_digit(c);
 	}
-	char* number = _tkstr_read_while(s, predread);
+	char* numStr = _tkstr_read_while(s, predread);
+	double number;
+	sscanf(numStr, "%lf", &number);
 	token* t = malloc(sizeof(token));
-	t->raw = number;
+	t->raw = numStr;
+	t->numberValue = number;
 	t->type = NUMBER;
 	return t;
 }

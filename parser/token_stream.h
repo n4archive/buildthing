@@ -9,6 +9,7 @@ typedef enum _token_type token_type;
 struct _token {
 	token_type type;
 	char* raw;
+	double numberValue;
 };
 typedef struct _token token;
 
