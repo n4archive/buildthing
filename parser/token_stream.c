@@ -72,36 +72,27 @@ char* _tkstr_read_escaped(token_stream* s, char end) {
 	while (!s->eof && !s->failed) {
 		c = instr_next(s->instr);
 		sync_tkstr_fail(s);
-
-		if(escaped && c == 'a')
-        {
+		if(escaped && c == 'a') {
             final[size - (free--)] = '\a';
         }
-		if(escaped && c == 'b')
-        {
+		if(escaped && c == 'b') {
             final[size - (free--)] = '\b';
         }
-		if(escaped && c == 'f')
-        {
+		if(escaped && c == 'f') {
             final[size - (free--)] = '\f';
         }
-		if(escaped && c == 'n')
-        {
+		if(escaped && c == 'n') {
 		    final[size - (free--)] = '\n';
         }
-		if(escaped && c == 'r')
-        {
-            final[size - (free--)] = '\r';
+		if(escaped && c == 'r') {
+		    final[size - (free--)] = '\r';
         }
-		if(escaped && c == 't')
-        {
+		if(escaped && c == 't') {
             final[size - (free--)] = '\t';
         }
-        if(escaped && c == 'v')
-        {
+        if(escaped && c == 'v') {
             final[size - (free--)] = '\v';
         }
-
 		if (escaped) {
 			final[size - (free--)] = c;
 			escaped = false;
