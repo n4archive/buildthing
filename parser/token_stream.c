@@ -13,6 +13,12 @@ token_stream* new_tk_stream(input_stream* input) {
 	return s;
 }
 
+token* alloc_token() {
+	token* t = malloc(sizeof(token));
+	t->raw = NULL;
+	t->numberValue = 0;
+}
+
 void sync_tkstr_fail(token_stream* s) {
 	if (s->instr->failed)
 		s->failed = true;
@@ -128,7 +134,7 @@ token* _tkstr_read_number(token_stream* s) {
 	}
 	char* numStr = _tkstr_read_while(s, predread);
 	double number;
-	token* t = malloc(sizeof(token));
+	token* t = alloc_token();
 	if (hexflag != 2)
 		sscanf(numStr, "%lf", &number);
 	else
@@ -148,14 +154,14 @@ bool is_keyword(char* s) {
 
 token* _tkstr_read_ident(token_stream* s) {
 	char* id = _tkstr_read_while(s, is_id);
-	token* t = malloc(sizeof(token));
+	token* t = alloc_token();
 	t->raw = id;
 	t->type = is_keyword(id) ? KEYWORD : VAR;
 	return t;
 }
 
 token* _tkstr_read_string(token_stream* s) {
-	token* t = malloc(sizeof(token));
+	token* t = alloc_token();
 	instr_next(s->instr);
 	t->raw = _tkstr_read_escaped(s, '"');
 	t->type = STRING;
@@ -191,12 +197,12 @@ token* _tkstr_read_next(token_stream* s) {
 	else if (is_id_start(c))
 		return _tkstr_read_ident(s);
 	else if (is_punc(c)) {
-		token* t = malloc(sizeof(token));
+		token* t = alloc_token();
 		t->raw = char2string(instr_next(s->instr));
 		t->type = PUNC;
 		return t;
 	} else if (is_op_char(c)) {
-		token* t = malloc(sizeof(token));
+		token* t = alloc_token();
 		t->raw = _tkstr_read_while(s, is_op_char);
 		t->type = OP;
 		return t;
