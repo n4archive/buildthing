@@ -81,7 +81,7 @@ char* _tkstr_read_escaped(token_stream* s, char end) {
 		} else if (escaped && c == 'n') {
 			final[size - (free--)] = '\n';
 		} else if (escaped && c == 'r') {
-		    final[size - (free--)] = '\r';
+			final[size - (free--)] = '\r';
 		} else if (escaped && c == 't') {
 			final[size - (free--)] = '\t';
 		} else if (escaped && c == 'v') {
