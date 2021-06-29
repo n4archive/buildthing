@@ -32,6 +32,17 @@ int str_is_digit(const char *YYCURSOR)
     */
 }
 
+int str_is_hex_digit(const char *YYCURSOR)
+{
+    /*!re2c                         // start of re2c block
+                                    //
+    hdigitident = [0-9A-F]; // named definition
+                                    //
+    hdigitident { return 1; }             // normal rule
+    *     { return 0; }             // default rule
+    */
+}
+
 int str_is_id_start(const char *YYCURSOR)
 {
     /*!re2c                         // start of re2c block
@@ -87,6 +98,7 @@ int str_is_whitespace(const char *YYCURSOR)
 MAKE_CHAR_FUNC(is_id_start)
 MAKE_CHAR_FUNC(is_id)
 MAKE_CHAR_FUNC(is_digit)
+MAKE_CHAR_FUNC(is_hex_digit)
 MAKE_CHAR_FUNC(is_op_char)
 MAKE_CHAR_FUNC(is_punc)
 MAKE_CHAR_FUNC(is_whitespace)

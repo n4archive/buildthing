@@ -107,11 +107,22 @@ char* _tkstr_read_escaped(token_stream* s, char end) {
 
 token* _tkstr_read_number(token_stream* s) {
 	bool has_dot = false;
+	int hexflag = 0;
 	bool predread(char c) {
 		if (c == '.') {
 			if (has_dot) return false;
 			has_dot = true;
 			return true;
+		} else if (c == '0' && hexflag == 0) {
+			hexflag = 1;
+			return true;
+		} else if (hexflag == 0) {
+			hexflag = -1;
+		} else if (hexflag == 1 && c == 'x') {
+			hexflag = 2;
+			return true;
+		} else if (hexflag == 2) {
+			return is_hex_digit(c);
 		}
 		return is_digit(c);
 	}

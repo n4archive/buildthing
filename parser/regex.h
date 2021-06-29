@@ -7,6 +7,7 @@ char* char2string(char c);
 MAKE_CHAR_FUNC_H(is_id_start)
 MAKE_CHAR_FUNC_H(is_id)
 MAKE_CHAR_FUNC_H(is_digit)
+MAKE_CHAR_FUNC_H(is_hex_digit)
 MAKE_CHAR_FUNC_H(is_op_char)
 MAKE_CHAR_FUNC_H(is_punc)
 MAKE_CHAR_FUNC_H(is_whitespace)
