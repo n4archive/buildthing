@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
 		if (n == NULL && !s->eof)
 			printf("Error?\n");
 		else if (n != NULL)
-			printf("type: %d; content: %s\n", n->type, n->raw);
+			printf("Type: %d | Content: %s | Numeric value: %f\n", n->type, n->raw, n->numberValue);
 	}
 	return 0;
 }

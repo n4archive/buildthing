@@ -128,11 +128,11 @@ token* _tkstr_read_number(token_stream* s) {
 	}
 	char* numStr = _tkstr_read_while(s, predread);
 	double number;
-	sscanf(numStr, "%lf", &number);
 	token* t = malloc(sizeof(token));
-	if (hexflag == 2)
-		numStr += sizeof(char) * 2;
-	t->raw = numStr;
+	if (hexflag != 2)
+        sscanf(numStr, "%lf", &number);
+    else number = (int) strtol(numStr, NULL, 0);
+    t->raw = numStr;
 	t->numberValue = number;
 	t->type = NUMBER;
 	return t;
