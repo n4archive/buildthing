@@ -129,6 +129,7 @@ token* _tkstr_read_number(token_stream* s) {
 	char* numStr = _tkstr_read_while(s, predread);
 	double number;
 	token* t = malloc(sizeof(token));
+	//TODO: Negative digits + throw exception if hex invalid (-1)
 	if (hexflag != 2)
 		sscanf(numStr, "%lf", &number);
 	else
