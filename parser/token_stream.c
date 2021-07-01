@@ -102,6 +102,8 @@ char* _tkstr_read_escaped(token_stream* s, char end) {
 		}
 	}
 	final[size - free] = '\0';
+	if (escaped)
+		tkstr_fail(s, 'unterminated string');
 	return final;
 }
 
