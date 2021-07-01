@@ -141,6 +141,7 @@ token* _tkstr_read_number(token_stream* s) {
 	if(number == -1 && hexflag == 2)
 	{
 		tkstr_fail(s, numStr);
+		return NULL;
 	}
 
 	//Saves the number to the token
@@ -187,7 +188,7 @@ token* _tkstr_read_next(token_stream* s) {
 	_tkstr_read_while(s, is_whitespace);
 	sync_tkstr_fail(s);
 	if (s->eof)
-		r9eturn NULL;
+		return NULL;
 
 	char c = instr_peek(s->instr);
 	if (c == '\0') {
