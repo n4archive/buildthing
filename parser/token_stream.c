@@ -105,6 +105,7 @@ char* _tkstr_read_escaped(token_stream* s, char end) {
 	return final;
 }
 
+//TODO: Negative numbers (they should not be implemented in read_number, the negation should be computed after all tokens have been read (e.g. combine: [12] [/] [-] [2] -> [12] [/] [-2])
 token* _tkstr_read_number(token_stream* s) {
 	bool has_dot = false;
 	int hexflag = 0;
@@ -129,14 +130,24 @@ token* _tkstr_read_number(token_stream* s) {
 	char* numStr = _tkstr_read_while(s, predread);
 	double number;
 	token* t = malloc(sizeof(token));
-	//TODO: Negative digits + throw exception if hex invalid (-1)
+
+	//Parses the number
 	if (hexflag != 2)
 		sscanf(numStr, "%lf", &number);
 	else
 		number = (int) strtol(numStr, NULL, 0);
+
+	//Checks if the hex value is invalid
+	if(number == -1 && hexflag == 2)
+	{
+		tkstr_fail(s, numStr);
+	}
+
+	//Saves the number to the token
 	t->raw = numStr;
 	t->numberValue = number;
 	t->type = NUMBER;
+
 	return t;
 }
 
@@ -176,7 +187,8 @@ token* _tkstr_read_next(token_stream* s) {
 	_tkstr_read_while(s, is_whitespace);
 	sync_tkstr_fail(s);
 	if (s->eof)
-		return NULL;
+		r9eturn NULL;
+
 	char c = instr_peek(s->instr);
 	if (c == '\0') {
 		instr_next(s->instr);
