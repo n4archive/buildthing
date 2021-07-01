@@ -5,7 +5,7 @@ LDFLAGS ?=
 CFLAGS ?= -Wall -Wextra -g -Og
 CPPFLAGS ?= -DBUILDTHING
 R2CSRCS := parser/regex.r2c
-CSRCS := main.c file.c string.c parser/char_stream.c parser/token_stream.c
+CSRCS := main.c file.c string.c parser/char_stream.c parser/token_stream.c parser/parser.c
 CSRCS += $(addprefix $(OUT)/, $(R2CSRCS:.r2c=.c))
 COBJS = $(addprefix $(OUT)/, $(CSRCS:.c=.o))
 OBJS = $(COBJS)

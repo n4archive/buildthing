@@ -1,5 +1,6 @@
 #ifndef REGEX_H
 #define REGEX_H
+#include <stdbool.h>
 char* char2string(char c);
 
 #define MAKE_CHAR_FUNC_H(name) bool name(char c);
