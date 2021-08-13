@@ -31,3 +31,8 @@ splitstr* split(char* string, char* delimiter) {
 	return ret;
 }
 
+void free_splitstr(splitstr* ret) {
+	for (int i = 0; i < ret->len; i++)
+		free(ret->str[i]);
+	free(ret);
+}

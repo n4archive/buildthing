@@ -7,7 +7,9 @@
     re2c:yyfill:enable = 0;         // configuration
 */
 
+//DEPRECATED
 char* char2string(char c) {
+
     char* str = malloc(sizeof(char) * 2);
     str[1] = '\0';
     str[0] = c;
@@ -16,7 +18,10 @@ char* char2string(char c) {
 
 #define MAKE_CHAR_FUNC(func) \
 	bool func(char c) { \
-		return str_##func(char2string(c)); \
+		char str[2]; \
+		str[1] = '\0'; \
+		str[0] = c; \
+		return str_##func(str); \
 	}
 
 // regex definitions

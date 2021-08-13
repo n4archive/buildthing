@@ -18,8 +18,11 @@ int main(int argc, char** argv) {
 		token* n = tkstr_next(s);
 		if (n == NULL && !s->eof)
 			printf("Error?\n");
-		else if (n != NULL)
+		else if (n != NULL) {
 			printf("Type: %d | Content: %s | Numeric value: %f\n", n->type, n->raw, n->numberValue);
+			destroy_token(n);
+		}
 	}
+	tkstr_free(s);
 	return 0;
 }

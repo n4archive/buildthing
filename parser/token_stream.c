@@ -225,3 +225,17 @@ token* _tkstr_read_next(token_stream* s) {
 		return NULL;
 	}		
 }
+
+void tkstr_free(token_stream* s) {
+	if (s->instr)
+		instr_free(s->instr);
+	if (s->current)
+		free(s->current);
+	free(s);
+}
+
+void destroy_token(token* t) {
+	if (t->raw)
+		free(t->raw);
+	free(t);
+}

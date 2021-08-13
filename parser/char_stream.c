@@ -43,3 +43,8 @@ void instr_fail(input_stream* s, char* fail) {
 	printf("error at %ld:%ld: %s\n", s->line, s->col, fail);
 }
 
+//In case you want to keep the data, just run free(s)
+void instr_free(input_stream* s) {
+	free(s->_data);
+	free(s);
+}

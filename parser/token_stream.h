@@ -25,6 +25,10 @@ token_stream* new_tk_stream(input_stream* input);
 token* tkstr_next(token_stream* s);
 token* tkstr_peek(token_stream* s);
 void tkstr_fail(token_stream* s, char* fail);
+//In case you want to keep the input stream, set the internal pointer (instr) to null before calling
+void tkstr_free(token_stream* s);
+//In case you want to keep the raw string, use free(t)
+void destroy_token(token* t);
 
 bool is_keyword(char* s);
 char* _tkstr_read_while(token_stream* s, bool (*predicate) (char));
