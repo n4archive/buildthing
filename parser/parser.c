@@ -228,7 +228,6 @@ ast_node *parse_expression(token_stream *input) {
 
 ast_node *parse_func(token_stream *input) {
   ast_func *ret = malloc(sizeof(ast_func));
-  ast_node **tempptr;
   ret->argc =
       parse_delimited(input, '(', ')', ',', &(ret->argv), parse_varname);
   BOX(AST_FUNC, ret)

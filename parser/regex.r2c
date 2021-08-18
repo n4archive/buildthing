@@ -1,4 +1,6 @@
+#include "regex.h"
 #include <stdlib.h>
+#include <string.h>
 #include <stdbool.h>
 
 // no need to touch this part
