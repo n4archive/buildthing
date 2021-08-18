@@ -1,4 +1,5 @@
 #include "parser.h"
+#include "../unused.h"
 #include "regex.h"
 #include <stdbool.h>
 #include <stdio.h>
@@ -12,40 +13,43 @@
   return rret;
 
 char err[500];
-inline char *ef(int i) { return err; }
+inline char *ef(int UNUSED(i)) {
+  MARK_UNUSED(i);
+  return err;
+}
 
 void skip_punc(token_stream *input, char punc) {
   token *t = tkstr_next(input);
-  if (!(t->type == PUNC && t->raw[0] == punc && t->raw[1] == '\0'))
+  if (!(t->type == TKSTR_PUNC && t->raw[0] == punc && t->raw[1] == '\0'))
     tkstr_fail(input, ef(sprintf(err, "Unexcepted input, I wanted %c", punc)));
   destroy_token(t);
 }
 
 bool ensure_punc(token_stream *input, char punc) {
   token *t = tkstr_peek(input);
-  return t && t->type == PUNC && t->raw[0] == punc && t->raw[1] == '\0';
+  return t && t->type == TKSTR_PUNC && t->raw[0] == punc && t->raw[1] == '\0';
 }
 
 void skip_op(token_stream *input, char *op) {
   token *t = tkstr_next(input);
-  if (!(t->type == OP && strcmp(t->raw, op) == 0))
+  if (!(t->type == TKSTR_OP && strcmp(t->raw, op) == 0))
     tkstr_fail(input, ef(sprintf(err, "Unexcepted input, I wanted %s", op)));
   destroy_token(t);
 }
 
 bool ensure_op(token_stream *input, char *op) {
   token *t = tkstr_peek(input);
-  return t && t->type == OP && strcmp(op, t->raw) == 0;
+  return t && t->type == TKSTR_OP && strcmp(op, t->raw) == 0;
 }
 
 bool ensure_kw(token_stream *input, char *kw) {
   token *t = tkstr_peek(input);
-  return t && t->type == KEYWORD && strcmp(kw, t->raw) == 0;
+  return t && t->type == TKSTR_KEYWORD && strcmp(kw, t->raw) == 0;
 }
 
 void skip_kw(token_stream *input, char *kw) {
   token *t = tkstr_next(input);
-  if (!(strcmp(kw, t->raw) == 0 && t->type == KEYWORD))
+  if (!(strcmp(kw, t->raw) == 0 && t->type == TKSTR_KEYWORD))
     tkstr_fail(input, ef(sprintf(err, "Unexcepted input, I wanted %s", kw)));
   destroy_token(t);
 }
@@ -79,7 +83,7 @@ int parse_delimited(token_stream *input, char start, char stop, char delimiter,
 
 ast_node *parse_varname(token_stream *input) {
   token *t = tkstr_next(input);
-  if (t->type != VAR)
+  if (t->type != TKSTR_VAR)
     tkstr_fail(input, "Excepted variable name");
   ast_var *tret = malloc(sizeof(ast_var));
   tret->str = t->raw;
@@ -99,7 +103,7 @@ int prec(char *op) {
 
 ast_node *parse_bool(token_stream *input) {
   token *t = tkstr_next(input);
-  if (t->type != KEYWORD)
+  if (t->type != TKSTR_KEYWORD)
     tkstr_fail(input, "Unexcepted");
   ast_bool *ret = malloc(sizeof(ast_bool));
   ret->value = strcmp(t->raw, "true") == 0;
@@ -141,7 +145,7 @@ ast_node *maybe_call(token_stream *input, ast_node *(*func)(token_stream *)) {
 
 ast_node *maybe_binary(token_stream *input, ast_node *left, int my_prec) {
   token *tok = tkstr_peek(input);
-  if (tok && tok->type == OP) {
+  if (tok && tok->type == TKSTR_OP) {
     int his_prec = prec(tok->raw);
     if (his_prec > my_prec) {
       bool is_assign = ensure_op(input, "=");
@@ -195,17 +199,17 @@ ast_node *_real_parse_atom(token_stream *input) {
     return parse_func(input);
   }
   token *tok = tkstr_next(input);
-  if (tok->type == VAR) {
+  if (tok->type == TKSTR_VAR) {
     ast_var *ret = malloc(sizeof(ast_var));
     ret->str = tok->raw;
     BOX(AST_VAR, ret)
   }
-  if (tok->type == STRING) {
+  if (tok->type == TKSTR_STRING) {
     ast_str *ret = malloc(sizeof(ast_str));
     ret->str = tok->raw;
     BOX(AST_STR, ret)
   }
-  if (tok->type == NUMBER) {
+  if (tok->type == TKSTR_NUMBER) {
     ast_number *ret = malloc(sizeof(ast_number));
     ret->num = tok->numberValue;
     BOX(AST_NUM, ret)

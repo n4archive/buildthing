@@ -16,7 +16,7 @@ enum ast_type {
   AST_PROG,
   AST_UNARY
 };
-enum if_type { IF_OP, DOWHILE_OP, WHILE_OP };
+enum ast_if_type { AST_IF_OP, AST_DOWHILE_OP, AST_WHILE_OP };
 
 typedef struct {
   enum ast_type type;
@@ -42,7 +42,7 @@ typedef struct {
   int argc;
 } ast_call;
 typedef struct {
-  enum if_type type;
+  enum ast_if_type type;
   ast_node *cond;
   ast_node *then;
   ast_node *elsee;
@@ -70,14 +70,8 @@ typedef struct {
   int argc;
 } ast_func;
 
-char *ef(int);
-
 #define parsef(i) ast_node *parse_##i(token_stream *input);
 parsef(func) parsef(bool) parsef(expression) parsef(varname) parsef(if)
     parsef(prog) parsef(atom);
-void skip_punc(token_stream *input, char punc);
-bool ensure_punc(token_stream *input, char punc);
-int parse_delimited(token_stream *input, char start, char stop, char delimiter,
-                    ast_node ***ret, ast_node *(*parser)());
 #undef parsef
 #endif

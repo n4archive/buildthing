@@ -2,12 +2,12 @@
 #define TOKEN_STREAM_H
 #include "char_stream.h"
 enum _token_type {
-  NUMBER = 1,
-  VAR = 2,
-  KEYWORD = 3,
-  STRING = 4,
-  PUNC = 5,
-  OP = 6
+  TKSTR_NUMBER = 1,
+  TKSTR_VAR = 2,
+  TKSTR_KEYWORD = 3,
+  TKSTR_STRING = 4,
+  TKSTR_PUNC = 5,
+  TKSTR_OP = 6
 };
 typedef enum _token_type token_type;
 
@@ -36,7 +36,6 @@ void tkstr_free(token_stream *s);
 // In case you want to keep the raw string, use free(t)
 void destroy_token(token *t);
 
-bool is_keyword(char *s);
 char *_tkstr_read_while(token_stream *s, bool (*predicate)(char));
 char *_tkstr_read_while_p(token_stream *s, void *,
                           bool (*predicate)(char, void *));

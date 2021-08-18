@@ -171,7 +171,7 @@ token *_tkstr_read_number(token_stream *s) {
   // Saves the number to the token
   t->raw = numStr;
   t->numberValue = number;
-  t->type = NUMBER;
+  t->type = TKSTR_NUMBER;
 
   return t;
 }
@@ -180,7 +180,7 @@ token *_tkstr_read_ident(token_stream *s) {
   char *id = _tkstr_read_while(s, is_id);
   token *t = malloc(sizeof(token));
   t->raw = id;
-  t->type = is_keyword(id) ? KEYWORD : VAR;
+  t->type = is_keyword(id) ? TKSTR_KEYWORD : TKSTR_VAR;
   return t;
 }
 
@@ -188,7 +188,7 @@ token *_tkstr_read_string(token_stream *s) {
   token *t = malloc(sizeof(token));
   instr_next(s->instr);
   t->raw = _tkstr_read_escaped(s, '"');
-  t->type = STRING;
+  t->type = TKSTR_STRING;
   return t;
 }
 
@@ -222,13 +222,13 @@ token *_tkstr_read_next(token_stream *s) {
   if (is_punc(c)) {
     token *t = malloc(sizeof(token));
     t->raw = char2string(instr_next(s->instr));
-    t->type = PUNC;
+    t->type = TKSTR_PUNC;
     return t;
   }
   if (is_op_char(c)) {
     token *t = malloc(sizeof(token));
     t->raw = _tkstr_read_while(s, is_op_char);
-    t->type = OP;
+    t->type = TKSTR_OP;
     return t;
   }
   char err[35] = {' '};
