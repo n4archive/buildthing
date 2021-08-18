@@ -26,6 +26,17 @@ char* char2string(char c) {
 
 // regex definitions
 
+bool is_keyword(char *s) {
+#define k(w)                                                                   \
+  if (strcmp(s, w) == 0)                                                       \
+    return true;
+  k("if") k("while") k("do") k("then") k("else") k("true") k("false")
+#undef k
+      return false;
+}
+
+bool is_not_newline(char c) { return c != '\n'; }
+
 int str_is_digit(const char *YYCURSOR)
 {
     /*!re2c                         // start of re2c block

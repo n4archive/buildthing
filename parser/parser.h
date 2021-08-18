@@ -58,14 +58,15 @@ typedef struct {
 } ast_binary;
 typedef struct {
   ast_node **instrs;
+  int count;
 } ast_prog;
 typedef struct {
   ast_node *contents;
   char *operatorr;
 } ast_unary;
 typedef struct {
-  ast_prog *body;
-  ast_var **argv;
+  ast_node *body;
+  ast_node **argv;
   int argc;
 } ast_func;
 

@@ -1,10 +1,16 @@
 #ifndef REGEX_H
 #define REGEX_H
-#include <stdbool.h>
-char* char2string(char c);
-
 #define MAKE_CHAR_FUNC_H(name) bool name(char c);
+#include <stdbool.h>
 
+// DEPRECATED
+char *char2string(char c);
+
+/* normal functions */
+bool is_keyword(char *);
+MAKE_CHAR_FUNC_H(is_not_newline)
+
+/* regex functions */
 MAKE_CHAR_FUNC_H(is_id_start)
 MAKE_CHAR_FUNC_H(is_id)
 MAKE_CHAR_FUNC_H(is_digit)

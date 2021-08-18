@@ -124,7 +124,7 @@ char *_tkstr_read_escaped(token_stream *s, char end) {
   return final;
 }
 
-bool predreadnum(char c, void *ap) {
+bool _tkstr_predreadnum(char c, void *ap) {
   int *a = (int *)ap;
   if (c == '.') {
     if (a[1])
@@ -152,7 +152,7 @@ bool predreadnum(char c, void *ap) {
 // [12] [/] [-] [2] -> [12] [/] [-2])
 token *_tkstr_read_number(token_stream *s) {
   int ia[2];
-  char *numStr = _tkstr_read_while_p(s, ia, predreadnum);
+  char *numStr = _tkstr_read_while_p(s, ia, _tkstr_predreadnum);
   double number;
   token *t = malloc(sizeof(token));
 
@@ -176,15 +176,6 @@ token *_tkstr_read_number(token_stream *s) {
   return t;
 }
 
-bool is_keyword(char *s) {
-#define k(w)                                                                   \
-  if (strcmp(s, w) == 0)                                                       \
-    return true;
-  k("if") k("while") k("do") k("then") k("else") k("true") k("false")
-#undef k
-      return false;
-}
-
 token *_tkstr_read_ident(token_stream *s) {
   char *id = _tkstr_read_while(s, is_id);
   token *t = malloc(sizeof(token));
@@ -200,8 +191,6 @@ token *_tkstr_read_string(token_stream *s) {
   t->type = STRING;
   return t;
 }
-
-bool is_not_newline(char c) { return c != '\n'; }
 
 void _tkstr_skip_comment(token_stream *s) {
   _tkstr_read_while(s, is_not_newline);

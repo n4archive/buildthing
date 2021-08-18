@@ -1,5 +1,4 @@
 #include "char_stream.h"
-#include <setjmp.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -23,7 +23,7 @@ void skip_punc(token_stream *input, char punc) {
 
 bool ensure_punc(token_stream *input, char punc) {
   token *t = tkstr_peek(input);
-  return t->type == PUNC && t->raw[0] == punc && t->raw[1] == '\0';
+  return t && t->type == PUNC && t->raw[0] == punc && t->raw[1] == '\0';
 }
 
 void skip_op(token_stream *input, char *op) {
@@ -35,12 +35,12 @@ void skip_op(token_stream *input, char *op) {
 
 bool ensure_op(token_stream *input, char *op) {
   token *t = tkstr_peek(input);
-  return t->type == OP && strcmp(op, t->raw) == 0;
+  return t && t->type == OP && strcmp(op, t->raw) == 0;
 }
 
 bool ensure_kw(token_stream *input, char *kw) {
   token *t = tkstr_peek(input);
-  return t->type == KEYWORD && strcmp(kw, t->raw) == 0;
+  return t && t->type == KEYWORD && strcmp(kw, t->raw) == 0;
 }
 
 void skip_kw(token_stream *input, char *kw) {
@@ -116,6 +116,8 @@ ast_node *parse_if(token_stream *input) {
   if (ensure_kw(input, "else")) {
     destroy_token(tkstr_next(input));
     ret->elsee = parse_expression(input);
+  } else {
+    ret->elsee = NULL;
   }
   ret->cond = cond;
   ret->then = then;
@@ -124,14 +126,9 @@ ast_node *parse_if(token_stream *input) {
 
 ast_node *parse_call(token_stream *input, ast_node *name) {
   ast_call *ret = malloc(sizeof(ast_call));
-  ast_node **tempptr;
   ret->ref = name;
-  ret->argc = parse_delimited(input, '(', ')', ',', &tempptr, parse_varname);
-  ret->argv = malloc(sizeof(ast_var) * ret->argc);
-  for (int i = 0; i < ret->argc; i++) {
-    ret->argv[i] = tempptr[i]->content;
-    free(tempptr[i]);
-  }
+  ret->argc =
+      parse_delimited(input, '(', ')', ',', &(ret->argv), parse_varname);
   BOX(AST_CALL, ret)
 }
 
@@ -144,7 +141,7 @@ ast_node *maybe_call(token_stream *input, ast_node *(*func)(token_stream *)) {
 
 ast_node *maybe_binary(token_stream *input, ast_node *left, int my_prec) {
   token *tok = tkstr_peek(input);
-  if (tok->type == OP) {
+  if (tok && tok->type == OP) {
     int his_prec = prec(tok->raw);
     if (his_prec > my_prec) {
       bool is_assign = ensure_op(input, "=");
@@ -232,29 +229,31 @@ ast_node *parse_expression(token_stream *input) {
 ast_node *parse_func(token_stream *input) {
   ast_func *ret = malloc(sizeof(ast_func));
   ast_node **tempptr;
-  ret->argc = parse_delimited(input, '(', ')', ',', &tempptr, parse_varname);
-  ret->argv = malloc(sizeof(ast_var) * ret->argc);
-  for (int i = 0; i < ret->argc; i++) {
-    ret->argv[i] = tempptr[i]->content;
-    free(tempptr[i]);
-  }
+  ret->argc =
+      parse_delimited(input, '(', ')', ',', &(ret->argv), parse_varname);
   BOX(AST_FUNC, ret)
 }
 
 ast_node *parse_prog(token_stream *input) {
-  int size = 5;
-  ast_node **prog = malloc(sizeof(ast_node *) * size);
-  int count = 0;
-  while (!input->eof) {
-    prog[count++] = parse_expression(input);
-    if (!input->eof)
-      skip_punc(input, ';');
-  }
-  if (count == size) {
-    size += 5;
-    prog = realloc(prog, size * sizeof(ast_prog *));
-  }
+  ast_node **prog;
   ast_prog *ret = malloc(sizeof(ast_prog));
+  if (input->instr->pos == 0) {
+    int size = 5;
+    prog = malloc(sizeof(ast_node *) * size);
+    int count = 0;
+    while (!input->eof) {
+      prog[count++] = parse_expression(input);
+      if (!input->eof)
+        skip_punc(input, ';');
+      if (count == size) {
+        size += 5;
+        prog = realloc(prog, size * sizeof(ast_prog *));
+      }
+    }
+    ret->count = count;
+  } else {
+    ret->count = parse_delimited(input, '{', '}', ';', &prog, parse_expression);
+  }
   ret->instrs = prog;
   BOX(AST_PROG, ret)
 }
