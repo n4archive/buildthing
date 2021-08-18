@@ -13,15 +13,7 @@ token_stream *new_tk_stream(input_stream *input) {
   return s;
 }
 
-void sync_tkstr_fail(token_stream *s) {
-  if (s->instr->failed)
-    s->failed = true;
-  if (s->instr->eof)
-    s->eof = true;
-}
-
 token *tkstr_next(token_stream *s) {
-  sync_tkstr_fail(s);
   if (s->eof)
     return NULL;
   token *t = s->current;
@@ -32,7 +24,6 @@ token *tkstr_next(token_stream *s) {
 }
 
 token *tkstr_peek(token_stream *s) {
-  sync_tkstr_fail(s);
   if (s->eof)
     return NULL;
   if (s->current)
@@ -51,7 +42,6 @@ char *_tkstr_read_while_p(token_stream *s, void *ref,
   int free = size;
   char *final = malloc(sizeof(char) * size);
   while (!s->eof && !s->failed && predicate(instr_peek(s->instr), ref)) {
-    sync_tkstr_fail(s);
     final[size - (free--)] = instr_next(s->instr);
     if (free < 1) {
       size += 100;
@@ -67,7 +57,6 @@ char *_tkstr_read_while(token_stream *s, bool (*predicate)(char)) {
   int free = size;
   char *final = malloc(sizeof(char) * size);
   while (!s->eof && !s->failed && predicate(instr_peek(s->instr))) {
-    sync_tkstr_fail(s);
     final[size - (free--)] = instr_next(s->instr);
     if (free < 1) {
       size += 100;
@@ -86,7 +75,6 @@ char *_tkstr_read_escaped(token_stream *s, char end) {
   char c = '\0';
   while (!s->eof && !s->failed) {
     c = instr_next(s->instr);
-    sync_tkstr_fail(s);
     if (escaped) {
       if (c == 'a') {
         final[size - (free--)] = '\a';
@@ -199,14 +187,12 @@ void _tkstr_skip_comment(token_stream *s) {
 
 token *_tkstr_read_next(token_stream *s) {
   _tkstr_read_while(s, is_whitespace);
-  sync_tkstr_fail(s);
   if (s->eof)
     return NULL;
 
   char c = instr_peek(s->instr);
   if (c == '\0') {
     instr_next(s->instr);
-    sync_tkstr_fail(s);
     return NULL;
   }
   if (c == '#') {
