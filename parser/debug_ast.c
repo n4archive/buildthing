@@ -25,7 +25,8 @@ void printinsr(ast_node *i) {
     b;
   case AST_UNARY:
     a(l);
-    printf("{\"type\": \"unary\", \"operator\": \"%s\", \"body\": ", l->operatorr);
+    printf("{\"type\": \"unary\", \"operator\": \"%s\", \"body\": ",
+           l->operatorr);
     printinsr(l->contents);
     printf("}");
     b;
@@ -60,7 +61,7 @@ void printinsr(ast_node *i) {
     printf(" \"else\"=");
     if (n->elsee)
       printinsr(n->elsee);
-      else
+    else
       printf("null");
     printf("}");
     b;
@@ -94,9 +95,9 @@ void printinsr(ast_node *i) {
     b;
   case AST_BINARY:
     a(r);
-    printf("{\"type\": \"binary\", \"left\"=");
+    printf("{\"type\": \"binary\", \"left\": ");
     printinsr(r->left);
-    printf(" \"operator\": \"%s\" \"right\"=", r->operatorr);
+    printf(", \"operator\": \"%s\", \"right\": ", r->operatorr);
     printinsr(r->right);
     printf("}");
     b;
@@ -104,7 +105,7 @@ void printinsr(ast_node *i) {
     a(s);
     printf("{\"type\": \"assign\", \"left\": ");
     printinsr(s->left);
-    printf(" \"right\": ");
+    printf(", \"right\": ");
     printinsr(s->right);
     printf("}");
     b;

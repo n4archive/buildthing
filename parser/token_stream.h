@@ -22,7 +22,6 @@ struct _token_stream_struct {
   input_stream *instr;
   token *current;
   bool failed;
-  bool eof;
 };
 typedef struct _token_stream_struct token_stream;
 

@@ -9,12 +9,11 @@ token_stream *new_tk_stream(input_stream *input) {
   s->instr = input;
   s->current = NULL;
   s->failed = false;
-  s->eof = false;
   return s;
 }
 
 token *tkstr_next(token_stream *s) {
-  if (s->eof)
+  if (s->instr->eof)
     return NULL;
   token *t = s->current;
   s->current = NULL;
@@ -24,7 +23,7 @@ token *tkstr_next(token_stream *s) {
 }
 
 token *tkstr_peek(token_stream *s) {
-  if (s->eof)
+  if (s->instr->eof)
     return NULL;
   if (s->current)
     return s->current;
@@ -41,7 +40,7 @@ char *_tkstr_read_while_p(token_stream *s, void *ref,
   int size = 1000;
   int free = size;
   char *final = malloc(sizeof(char) * size);
-  while (!s->eof && !s->failed && predicate(instr_peek(s->instr), ref)) {
+  while (!s->instr->eof && !s->failed && predicate(instr_peek(s->instr), ref)) {
     final[size - (free--)] = instr_next(s->instr);
     if (free < 1) {
       size += 100;
@@ -56,7 +55,7 @@ char *_tkstr_read_while(token_stream *s, bool (*predicate)(char)) {
   int size = 1000;
   int free = size;
   char *final = malloc(sizeof(char) * size);
-  while (!s->eof && !s->failed && predicate(instr_peek(s->instr))) {
+  while (!s->instr->eof && !s->failed && predicate(instr_peek(s->instr))) {
     final[size - (free--)] = instr_next(s->instr);
     if (free < 1) {
       size += 100;
@@ -73,7 +72,7 @@ char *_tkstr_read_escaped(token_stream *s, char end) {
   bool escaped = false;
   char *final = malloc(sizeof(char) * size);
   char c = '\0';
-  while (!s->eof && !s->failed) {
+  while (!s->instr->eof && !s->failed) {
     c = instr_next(s->instr);
     if (escaped) {
       if (c == 'a') {
@@ -187,7 +186,7 @@ void _tkstr_skip_comment(token_stream *s) {
 
 token *_tkstr_read_next(token_stream *s) {
   _tkstr_read_while(s, is_whitespace);
-  if (s->eof)
+  if (s->instr->eof)
     return NULL;
 
   char c = instr_peek(s->instr);

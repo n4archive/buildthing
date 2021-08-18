@@ -20,6 +20,8 @@ inline char *ef(int UNUSED(i)) {
 
 void parser_skip_punc(token_stream *input, char punc) {
   token *t = tkstr_next(input);
+  if (!t)
+    return;
   if (!(t->type == TKSTR_PUNC && t->raw[0] == punc && t->raw[1] == '\0'))
     tkstr_fail(input, ef(sprintf(err, "Unexcepted input, I wanted %c", punc)));
   destroy_token(t);
@@ -32,6 +34,8 @@ bool parser_ensure_punc(token_stream *input, char punc) {
 
 void parser_skip_op(token_stream *input, char *op) {
   token *t = tkstr_next(input);
+  if (!t)
+    return;
   if (!(t->type == TKSTR_OP && strcmp(t->raw, op) == 0))
     tkstr_fail(input, ef(sprintf(err, "Unexcepted input, I wanted %s", op)));
   destroy_token(t);
@@ -49,6 +53,8 @@ bool parser_ensure_kw(token_stream *input, char *kw) {
 
 void parser_skip_kw(token_stream *input, char *kw) {
   token *t = tkstr_next(input);
+  if (!t)
+    return;
   if (!(strcmp(kw, t->raw) == 0 && t->type == TKSTR_KEYWORD))
     tkstr_fail(input, ef(sprintf(err, "Unexcepted input, I wanted %s", kw)));
   destroy_token(t);
@@ -61,7 +67,7 @@ int parse_delimited(token_stream *input, char start, char stop, char delimiter,
   int count = 0;
   bool first = true;
   parser_skip_punc(input, start);
-  while (!input->eof) {
+  while (!input->instr->eof) {
     if (parser_ensure_punc(input, stop))
       break;
     if (first)
@@ -190,6 +196,14 @@ ast_node *_real_parse_atom(token_stream *input) {
     BOX(AST_UNARY, ret)
   }
 
+  if (parser_ensure_op(input, "-")) {
+    parser_skip_op(input, "-");
+    ast_unary *ret = malloc(sizeof(ast_unary));
+    ret->operatorr = "-";
+    ret->contents = parse_atom(input);
+    BOX(AST_UNARY, ret)
+  }
+
   if (parser_ensure_punc(input, '{'))
     return parse_prog(input);
   if (parser_ensure_kw(input, "if"))
@@ -247,9 +261,9 @@ ast_node *parse_prog(token_stream *input) {
     int size = 5;
     prog = malloc(sizeof(ast_node *) * size);
     int count = 0;
-    while (!input->eof) {
+    while (!input->instr->eof) {
       prog[count++] = parse_expression(input);
-      if (!input->eof)
+      if (!input->instr->eof)
         parser_skip_punc(input, ';');
       if (count == size) {
         size += 5;
