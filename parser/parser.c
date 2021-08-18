@@ -157,7 +157,8 @@ ast_node *parser_maybe_binary(token_stream *input, ast_node *left,
     int his_prec = _parser_prec(tok->raw);
     if (his_prec > my_prec) {
       bool is_assign = parser_ensure_op(input, "=");
-      destroy_token(tkstr_next(input)); // consume the token we peeked
+      char* op = tok->raw;
+      free(tkstr_next(input)); // consume the token we peeked
       ast_node *rett = malloc(sizeof(ast_node));
       ast_node *right = parser_maybe_binary(input, parse_atom(input), his_prec);
       if (is_assign) {
@@ -169,7 +170,7 @@ ast_node *parser_maybe_binary(token_stream *input, ast_node *left,
       } else {
         rett->type = AST_BINARY;
         ast_binary *ret = malloc(sizeof(ast_binary));
-        ret->operatorr = tok->raw;
+        ret->operatorr = op;
         ret->left = left;
         ret->right = right;
         rett->content = ret;
