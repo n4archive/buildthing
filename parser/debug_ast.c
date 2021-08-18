@@ -17,86 +17,100 @@ void printinsr(ast_node *i) {
     ast_str *t;
   case AST_NUM:
     a(j);
-    printf("{num %lf}\n", j->num);
+    printf("{\"type\": \"num\", \"value\": %lf}", j->num);
     b;
   case AST_VAR:
     a(k);
-    printf("{var %s}", k->str);
+    printf("{\"type\": \"var\", \"value\": \"%s\"}", k->str);
     b;
   case AST_UNARY:
     a(l);
-    printf("{unary %s \n", l->operatorr);
+    printf("{\"type\": \"unary\", \"operator\": \"%s\", \"body\": ", l->operatorr);
     printinsr(l->contents);
-    printf("}\n");
+    printf("}");
     b;
   case AST_PROG:
     a(m);
-    printf("{prog [\n");
+    printf("{\"type\": \"prog\", \"body\": [");
     for (int i2 = 0; i2 < m->count; i2++) {
       printinsr(m->instrs[i2]);
       if (i2 + 1 < m->count)
-        printf(",\n");
+        printf(",");
     }
-    printf("]}\n");
+    printf("]}");
     b;
   case AST_IF:
     a(n);
-    printf("{if type=%d cond=\n", n->type);
+    char *d = "error";
+    switch (n->type) {
+    case AST_DOWHILE_OP:
+      d = "dowhile";
+      b;
+    case AST_IF_OP:
+      d = "if";
+      b;
+    case AST_WHILE_OP:
+      d = "while";
+      b;
+    }
+    printf("{\"type\": \"if\", \"type\"=\"%s\", \"cond\":", d);
     printinsr(n->cond);
-    printf(" then=\n");
+    printf(", \"then\"=");
     printinsr(n->then);
-    printf(" elsee=\n");
+    printf(" \"else\"=");
     if (n->elsee)
       printinsr(n->elsee);
-    printf("}\n");
+      else
+      printf("null");
+    printf("}");
     b;
   case AST_FUNC:
     a(o);
-    printf("{func arg=[");
+    printf("{\"type\": \"func\", \"arg\": [");
     for (int i2 = 0; i2 < o->argc; i2++) {
       printinsr(o->argv[i2]);
       if (i2 + 1 < o->argc)
-        printf(",\n");
+        printf(",");
     }
-    printf("], body=\n");
+    printf("], \"body\"=");
     printinsr(o->body);
-    printf("}\n");
+    printf("}");
     b;
   case AST_CALL:
     a(p);
-    printf("{call arg=[");
+    printf("{\"type\": \"call\", \"arg\": [");
     for (int i2 = 0; i2 < p->argc; i2++) {
       printinsr(p->argv[i2]);
       if (i2 + 1 < p->argc)
-        printf(",\n");
+        printf(",");
     }
-    printf("], ref=\n");
+    printf("], \"ref\"=");
     printinsr(p->ref);
-    printf("}\n");
+    printf("}");
     b;
   case AST_BOOL:
     a(q);
-    printf("{bool %d}\n", q->value);
+    printf("{\"type\": \"bool\", \"value\": %d}", q->value);
     b;
   case AST_BINARY:
     a(r);
-    printf("{binary left=\n");
+    printf("{\"type\": \"binary\", \"left\"=");
     printinsr(r->left);
-    printf(" operatorr=%s right=\n", r->operatorr);
+    printf(" \"operator\": \"%s\" \"right\"=", r->operatorr);
     printinsr(r->right);
-    printf("}\n");
+    printf("}");
     b;
   case AST_ASSIGN:
     a(s);
-    printf("{assign left=\n");
+    printf("{\"type\": \"assign\", \"left\": ");
     printinsr(s->left);
-    printf(" right=\n");
+    printf(" \"right\": ");
     printinsr(s->right);
-    printf("}\n");
+    printf("}");
     b;
   case AST_STR:
     t = i->content;
-    printf("\"%s\"", t->str);
+    printf("{\"type\": \"string\", \"value\": \"%s\"", t->str);
     b;
   }
 }
