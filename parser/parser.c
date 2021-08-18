@@ -13,7 +13,7 @@
   return rret;
 
 char err[500];
-inline char *ef(int UNUSED(i)) {
+char *ef(int UNUSED(i)) {
   MARK_UNUSED(i);
   return err;
 }
