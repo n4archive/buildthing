@@ -210,6 +210,7 @@ ast_node *_real_parse_atom(token_stream *input) {
     return exp;
   }
 
+  /* unary operators */
   if (parser_ensure_op(input, "!")) {
     parser_skip_op(input, "!");
     ast_unary *ret = malloc(sizeof(ast_unary));
@@ -220,8 +221,33 @@ ast_node *_real_parse_atom(token_stream *input) {
 
   if (parser_ensure_op(input, "-")) {
     parser_skip_op(input, "-");
+    if (parser_ensure_op(input, "-")) {
+      /* decrement */
+      parser_skip_op(input, "-");
+      ast_unary *ret = malloc(sizeof(ast_unary));
+      ret->operatorr = "--";
+      ret->contents = parse_atom(input);
+      BOX(AST_UNARY, ret)
+    }
     ast_unary *ret = malloc(sizeof(ast_unary));
     ret->operatorr = "-";
+    ret->contents = parse_atom(input);
+    BOX(AST_UNARY, ret)
+  }
+
+  /* an useless unary operator purposes */
+  if (parser_ensure_op(input, "+")) {
+    parser_skip_op(input, "+");
+    if (parser_ensure_op(input, "+")) {
+      /* increment, not so useless */
+      parser_skip_op(input, "+");
+      ast_unary *ret = malloc(sizeof(ast_unary));
+      ret->operatorr = "++";
+      ret->contents = parse_atom(input);
+      BOX(AST_UNARY, ret)
+    }
+    ast_unary *ret = malloc(sizeof(ast_unary));
+    ret->operatorr = "+";
     ret->contents = parse_atom(input);
     BOX(AST_UNARY, ret)
   }
