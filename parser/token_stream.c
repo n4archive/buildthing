@@ -212,7 +212,7 @@ token *_tkstr_read_next(token_stream *s) {
   }
   if (is_op_char(c)) {
     token *t = malloc(sizeof(token));
-    t->raw = _tkstr_read_while(s, is_op_char);
+    t->raw = char2string(instr_next(s->instr));
     t->type = TKSTR_OP;
     return t;
   }

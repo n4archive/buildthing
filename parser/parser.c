@@ -5,14 +5,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef DEBUG_AST_GEN
+#include "debug_ast.h"
+#else
+#define printinsr(...)
+#endif
 
+/* package ast content into an ast_node and return it */
 #define BOX(typeee, contenttt)                                                 \
   ast_node *rret = malloc(sizeof(ast_node));                                   \
   rret->content = contenttt;                                                   \
   rret->type = typeee;                                                         \
+  printinsr(rret); /* replaced by empty macro in non-debug mode */             \
   return rret;
 
 char err[500];
+char errctx[200];
 char *ef(int UNUSED(i)) {
   MARK_UNUSED(i);
   return err;
@@ -23,8 +31,12 @@ void parser_skip_punc(token_stream *input, char punc) {
   if (!t)
     return;
   if (!(t->type == TKSTR_PUNC && t->raw[0] == punc && t->raw[1] == '\0'))
-    tkstr_fail(input, ef(sprintf(err, "Unexcepted input, I wanted %c", punc)));
+    tkstr_fail(
+        input,
+        ef(sprintf(err, "Unexcepted input %c, excepted punctiation %c after %s",
+                   t->raw[0], punc, errctx)));
   destroy_token(t);
+  strcpy(errctx, "(unknown)");
 }
 
 bool parser_ensure_punc(token_stream *input, char punc) {
@@ -37,8 +49,12 @@ void parser_skip_op(token_stream *input, char *op) {
   if (!t)
     return;
   if (!(t->type == TKSTR_OP && strcmp(t->raw, op) == 0))
-    tkstr_fail(input, ef(sprintf(err, "Unexcepted input, I wanted %s", op)));
+    tkstr_fail(
+        input,
+        ef(sprintf(err, "Unexcepted input %c, excepted operator %s after %s",
+                   t->raw[0], op, errctx)));
   destroy_token(t);
+  strcpy(errctx, "(unknown)");
 }
 
 bool parser_ensure_op(token_stream *input, char *op) {
@@ -56,8 +72,12 @@ void parser_skip_kw(token_stream *input, char *kw) {
   if (!t)
     return;
   if (!(strcmp(kw, t->raw) == 0 && t->type == TKSTR_KEYWORD))
-    tkstr_fail(input, ef(sprintf(err, "Unexcepted input, I wanted %s", kw)));
+    tkstr_fail(
+        input,
+        ef(sprintf(err, "Unexcepted input %c, excepted keyword %s after %s",
+                   t->raw[0], kw, errctx)));
   destroy_token(t);
+  strcpy(errctx, "(unknown)");
 }
 
 int parse_delimited(token_stream *input, char start, char stop, char delimiter,
@@ -157,7 +177,7 @@ ast_node *parser_maybe_binary(token_stream *input, ast_node *left,
     int his_prec = _parser_prec(tok->raw);
     if (his_prec > my_prec) {
       bool is_assign = parser_ensure_op(input, "=");
-      char* op = tok->raw;
+      char *op = tok->raw;
       free(tkstr_next(input)); // consume the token we peeked
       ast_node *rett = malloc(sizeof(ast_node));
       ast_node *right = parser_maybe_binary(input, parse_atom(input), his_prec);
@@ -175,6 +195,7 @@ ast_node *parser_maybe_binary(token_stream *input, ast_node *left,
         ret->right = right;
         rett->content = ret;
       }
+      printinsr(rett);
       return parser_maybe_binary(input, rett, my_prec);
     }
   }
@@ -259,11 +280,13 @@ ast_node *parse_prog(token_stream *input) {
   ast_node **prog;
   ast_prog *ret = malloc(sizeof(ast_prog));
   if (input->instr->pos == 0) {
+    strcpy(errctx, "(unknown)");
     int size = 5;
     prog = malloc(sizeof(ast_node *) * size);
     int count = 0;
     while (!input->instr->eof) {
       prog[count++] = parse_expression(input);
+      strcpy(errctx, "expression");
       if (!input->instr->eof)
         parser_skip_punc(input, ';');
       if (count == size) {
