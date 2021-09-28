@@ -134,9 +134,6 @@ bool _tkstr_predreadnum(char c, void *ap) {
   return is_digit(c);
 }
 
-// TODO: Negative numbers (they should not be implemented in read_number, the
-// negation should be computed after all tokens have been read (e.g. combine:
-// [12] [/] [-] [2] -> [12] [/] [-2])
 token *_tkstr_read_number(token_stream *s) {
   int ia[2];
   char *numStr = _tkstr_read_while_p(s, ia, _tkstr_predreadnum);
