@@ -1,6 +1,7 @@
 #include "file.h"
-#include "parser/parser.h"
+#include "interpreter/interpreter.h"
 #include "parser/debug_ast.h"
+#include "interpreter/debug_any.h"
 #include "string.h"
 #include <setjmp.h>
 #include <stdio.h>
@@ -21,7 +22,12 @@ int main(int argc, char **argv) {
     token_stream *s = new_tk_stream(new_in_stream(contents, &env));
     ast_node *n = parse_prog(s);
     tkstr_free(s);
-    printinsr(n);
-  } /* error handling could goes into else branch */
+    printinsr(n); printf("\n");
+    iany* ret = evaluate(n, &env);
+    printiany(ret);
+  } else {
+    /* error handling could go here */
+    return eret;
+  }
   return 0;
 }
