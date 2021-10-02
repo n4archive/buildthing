@@ -33,7 +33,7 @@ void parser_skip_punc(token_stream *input, char punc) {
   if (!(t->type == TKSTR_PUNC && t->raw[0] == punc && t->raw[1] == '\0'))
     tkstr_fail(
         input,
-        ef(sprintf(err, "Unexcepted input %c, excepted punctiation %c after %s",
+        ef(sprintf(err, "Unexpected input %c, excepted punctuation %c after %s",
                    t->raw[0], punc, errctx)));
   destroy_token(t);
   strcpy(errctx, "(unknown)");
@@ -51,7 +51,7 @@ void parser_skip_op(token_stream *input, char *op) {
   if (!(t->type == TKSTR_OP && strcmp(t->raw, op) == 0))
     tkstr_fail(
         input,
-        ef(sprintf(err, "Unexcepted input %c, excepted operator %s after %s",
+        ef(sprintf(err, "Unexpected input %c, excepted operator %s after %s",
                    t->raw[0], op, errctx)));
   destroy_token(t);
   strcpy(errctx, "(unknown)");
@@ -74,7 +74,7 @@ void parser_skip_kw(token_stream *input, char *kw) {
   if (!(strcmp(kw, t->raw) == 0 && t->type == TKSTR_KEYWORD))
     tkstr_fail(
         input,
-        ef(sprintf(err, "Unexcepted input %c, excepted keyword %s after %s",
+        ef(sprintf(err, "Unexpected input %c, excepted keyword %s after %s",
                    t->raw[0], kw, errctx)));
   destroy_token(t);
   strcpy(errctx, "(unknown)");
@@ -130,7 +130,7 @@ int _parser_prec(char *op) {
 ast_node *parse_bool(token_stream *input) {
   token *t = tkstr_next(input);
   if (t->type != TKSTR_KEYWORD)
-    tkstr_fail(input, "Unexcepted");
+    tkstr_fail(input, "Unexpected");
   ast_bool *ret = malloc(sizeof(ast_bool));
   ret->value = strcmp(t->raw, "true") == 0;
   BOX(AST_BOOL, ret)
@@ -235,7 +235,7 @@ ast_node *_real_parse_atom(token_stream *input) {
     BOX(AST_UNARY, ret)
   }
 
-  /* an useless unary operator purposes */
+  /* a useless unary operator purposes */
   if (parser_ensure_op(input, "+")) {
     parser_skip_op(input, "+");
     if (parser_ensure_op(input, "+")) {
@@ -278,7 +278,7 @@ ast_node *_real_parse_atom(token_stream *input) {
     ret->num = tok->numberValue;
     BOX(AST_NUM, ret)
   }
-  tkstr_fail(input, "Unexcepted token");
+  tkstr_fail(input, "Unexpected token");
   return NULL;
 }
 
@@ -293,6 +293,7 @@ ast_node *parse_atom(token_stream *input) {
 ast_node *parse_expression(token_stream *input) {
   return parser_maybe_call(input, _real_parse_expression);
 }
+
 
 ast_node *parse_func(token_stream *input) {
   ast_func *ret = malloc(sizeof(ast_func));

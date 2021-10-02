@@ -82,7 +82,16 @@ iany* evaluate(ast_node* prog, jmp_buf* exception) {
 	ienv* root = _ienv_alloc(exception);
 	return subeval_prog(root, prog);
 }
+
 iany* subeval_prog(ienv* e, ast_node* prog) {
 	//todo
+    switch (prog->type)
+    {
+        default:
+        {
+            _ienv_fail(e, ie(sprintf(ierr, "Can not evaluate node %s (type: %s)", prog->type, prog->content)));
+            break;
+        }
+    }
 	return NULL;
 }
